@@ -1,21 +1,29 @@
-import os
-import re
+import os 
+import re 
 import certifi
 import airportsdata
 import pycountry
 import requests
 from dotenv import load_dotenv
+
 load_dotenv()
 
 os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 
-API_KEY=os.getenv("AVIATIONSTACK_API_KEY")
+API_KEY = os.getenv("AVIATIONSTACK_API_KEY")
 
-DEFAULT_ORIGIN_IATA=os.getenv("DEFAULT_ORIGIN_IATA","IN")
-BASE_URL="https://api.aviationstack.com/v1/flights"
+# Default origin when user says only destination, e.g. "Japan trip"
+# Change this if your default location is not Bangladesh/Dhaka.
+DEFAULT_ORIGIN_IATA = os.getenv("DEFAULT_ORIGIN_IATA", "DAC")
 
-AIRPORTS=airportsdata.load("IATA")
+
+BASE_URL = "https://api.aviationstack.com/v1/flights"
+
+
+AIRPORTS = airportsdata.load("IATA")
+
+
 
 COUNTRY_ALIASES = {
     "usa": "US",
@@ -53,6 +61,7 @@ COUNTRY_ALIASES = {
     "spain": "ES",
 }
 
+
 # Preferred main airport for country-level search
 COUNTRY_MAIN_AIRPORT = {
     "BD": "DAC",
@@ -78,6 +87,9 @@ COUNTRY_MAIN_AIRPORT = {
     "IT": "FCO",
     "ES": "MAD",
 }
+
+
+
 
 CITY_MAIN_AIRPORT = {
     "dhaka": "DAC",
@@ -106,6 +118,7 @@ CITY_MAIN_AIRPORT = {
     "madrid": "MAD",
     "frankfurt": "FRA",
 }
+
 
 def clean_text(text: str) -> str:
     text = text.lower().strip()
@@ -162,6 +175,9 @@ def airport_country_matches(airport: dict, country_code: str) -> bool:
 
     return False
 
+
+
+
 def get_best_airport_for_country(country_code: str):
     preferred = COUNTRY_MAIN_AIRPORT.get(country_code)
 
@@ -196,6 +212,8 @@ def get_best_airport_for_country(country_code: str):
 
     candidates.sort(reverse=True)
     return candidates[0][1]
+
+
 
 
 def resolve_location_to_iata(location: str):
@@ -265,6 +283,8 @@ def resolve_location_to_iata(location: str):
         return city_matches[0][1]
 
     return None
+
+
 
 
 def find_location_mentions(query: str):
